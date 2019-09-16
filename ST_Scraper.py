@@ -58,16 +58,15 @@ def extractFullTextwithTitles(dataframe):
                 textWOTags += " "
             fullTextList.append(textWOTags)
             time.sleep(1)
-            dataframe['full Text'] = fullTextList
-            dataframe['full Text'] = dataframe['headline'] + ' - ' + dataframe['full Text']
-
         except:
             print(url)
             pass
         counter += 1
         if counter%10 == 0:
-            print(counter/10)
+            print("..." + str(int(counter/10)) + "/" + str(maxPages) + "...")
 
+    dataframe['full Text'] = fullTextList
+    dataframe['full Text'] = dataframe['headline'] + ' - ' + dataframe['full Text']
     return dataframe
 
 def runAreaCounter(dataframe):
@@ -86,8 +85,11 @@ def runAreaCounter(dataframe):
 
 ## main body
 
+print("pages to run through: " + str(maxPages))
 df = readContentsPages(maxPages)
+print("completed reading all contents pages")
 df = extractFullTextwithTitles(df)
+print("analyzing...")
 runAreaCounter(df)
 
 
