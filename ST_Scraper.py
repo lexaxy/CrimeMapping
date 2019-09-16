@@ -39,7 +39,7 @@ def readContentsPages(maxpages):
 
     return df
 
-def extractFullText(dataframe):
+def extractFullTextwithTitles(dataframe):
     # this function takes as input the data frame generated from readContentsPages, and visits the article URL
     # and adds another column with the full text of the article to the data frame
     fullTextList = list()
@@ -58,19 +58,21 @@ def extractFullText(dataframe):
         time.sleep(1)
 
     dataframe['full Text'] = fullTextList
+    dataframe['full Text'] = dataframe['headline'] + ' - ' + dataframe['full Text']
 
     return dataframe
 
 
 df = readContentsPages(maxPages)
-df = extractFullText(df)
+df = extractFullTextwithTitles(df)
 
-stationNames = pd.read_csv('train-station-names.csv', usecols=["mrt_station_english"])
-areaCounter = dict.fromkeys(stationNames['mrt_station_english'],0)
+stationNames = pd.read_csv('train-station-names.csv', usecols=["station-names"])
+areaCounter = dict.fromkeys(stationNames['station-names'],0)
 
 for text in df['full Text']:
     for area in areaCounter.keys():
-        areaCounter[area] += text.count(area)
+        if area in text:
+            areaCounter[area] += 1
 
-##print(df)
 print(areaCounter)
+
