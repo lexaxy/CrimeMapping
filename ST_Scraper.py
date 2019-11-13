@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 ## global variables
-maxPages = 114
+maxPages = 1
 
 ## function definitions
 
@@ -31,7 +31,7 @@ def readContentsPages(maxpages):
         for date in dates:
            dateList.append(date.string)
 
-        time.sleep(1)
+        time.sleep(0.2)
 
     df['url'] = urlList
     df['headline'] = headlineList
@@ -57,9 +57,10 @@ def extractFullTextwithTitles(dataframe):
                 textWOTags += (str(sentence[0]))
                 textWOTags += " "
             fullTextList.append(textWOTags)
-            time.sleep(1)
+            time.sleep(0.2)
         except:
             print(url)
+            fullTextList.append(None)
             pass
         counter += 1
         if counter%10 == 0:
@@ -69,28 +70,10 @@ def extractFullTextwithTitles(dataframe):
     dataframe['full Text'] = dataframe['headline'] + ' - ' + dataframe['full Text']
     return dataframe
 
-def runAreaCounter(dataframe):
-    # Checks the full texts from the articles for whether they contain mention of the area. The list
-    # of areas is obtained from the data.gov.sg MRT station names with duplicates removed and simplified.
-    # The full list of areas considered can be found in the .csv file
-    stationNames = pd.read_csv('train-station-names.csv', usecols=["station-names"])
-    areaCounter = dict.fromkeys(stationNames['station-names'], 0)
-
-    for text in dataframe['full Text']:
-        for area in areaCounter.keys():
-            if area in text:
-                areaCounter[area] += 1
-
-    print(areaCounter)
-
 ## main body
 
 print("pages to run through: " + str(maxPages))
 df = readContentsPages(maxPages)
 print("completed reading all contents pages")
 df = extractFullTextwithTitles(df)
-print("analyzing...")
-runAreaCounter(df)
-
-
-
+df.to_csv("STscraper_full.csv")
