@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,15 +5,9 @@ import shapely as shapely
 
 
 map_df = gpd.read_file("Singapore_AL382.shp")
-
 station_df = gpd.read_file("MRTLRT.shp")
 
-
-
-# In[2]:
-
-
-#! /usr/bin/python
+# In[3]: importing SVY21 class to convert unique SG coordinates to standard LAT/LONG
 
 import math
 
@@ -179,37 +167,7 @@ class SVY21:
         return (lat / (math.pi / 180), lon / (math.pi / 180))
 
 
-# In[3]:
-
-
-map_df.head()
-
-
-# In[4]:
-
-
-station_df
-
-
-# In[5]:
-
-
-map_df['geometry']
-
-
-# In[6]:
-
-
-map_df.plot()
-
-
-# In[7]:
-
-
-station_df.plot()
-
-
-# In[8]:
+# In[9]: To convert and swap coordinates
 
 
 x_list = []
@@ -227,11 +185,6 @@ station_df['points'] = points
 
 svy = SVY21()
 station_df['new_coordinates'] = station_df.points.apply(lambda x: svy.computeLatLon(x[1], x[0]))
-station_df.head()
-
-
-# In[9]:
-
 
 swap_coords = []
 
@@ -242,7 +195,7 @@ new_station_df = pd.DataFrame(
     {'coordinates': swap_coords})
 
 
-# In[10]:
+# In[11]: Need to convert list of points to shapely Point object
 
 
 point_list = []
@@ -250,13 +203,13 @@ for i in new_station_df['coordinates']:
     point_list.append(shapely.geometry.point.Point(i))
 
 
-# In[11]:
+# In[12]: creating new GeoDataFrame to plot the crimerates
 
 
 s = gpd.GeoDataFrame({"geometry":point_list})
 
 
-# In[12]:
+# In[13]: Appending labels
 
 
 s["station-names"] = station_df["STN_NAME"]
@@ -266,20 +219,7 @@ for i in s["station-names"]:
     
 s["station-names"] = shortened_names
 
-
-# In[13]:
-
-
-s.head()
-
-
-# In[14]:
-
-
-s.plot()
-
-
-# In[15]:
+# In[16]: Verifying that s has captured points correctly
 
 
 fig, ax = plt.subplots(figsize=(15,15))
@@ -287,36 +227,58 @@ map_df.plot(ax=ax)
 s.plot(color = 'orange', ax=ax)
 
 
-# In[16]:
+# In[17]: Merging with previously extracted data on 19 Sept 19
 
 
 import ast
 crimeRates = ast.literal_eval("{'Admiralty': 2, 'Aljunied': 12, 'Ang Mo Kio': 35, 'Bartley': 0, 'Bayfront': 0, 'Beauty World': 2, 'Bedok': 46, 'Bedok North': 8, 'Bencoolen': 2, 'Bendemeer': 1, 'Bishan': 9, 'Boon Keng': 5, 'Boon Lay': 14, 'Botanic Gardens': 1, 'Braddell': 0, 'Bras Basah': 0, 'Buangkok': 2, 'Bugis': 3, 'Bukit Batok': 17, 'Bukit Gombak': 2, 'Bukit Panjang': 9, 'Buona Vista': 0, 'Caldecott': 0, 'Cashew': 0, 'Changi Airport': 20, 'Chinatown': 5, 'Chinese Garden': 0, 'Choa Chu Kang': 22, 'City Hall': 0, 'Clarke Quay': 8, 'Clementi': 25, 'Commonwealth': 9, 'Dakota': 0, 'Dhoby Ghaut': 1, 'Dover': 0, 'Downtown': 2, 'Esplanade': 0, 'Eunos': 3, 'Expo': 4, 'Farrer Park': 0, 'Farrer Road': 1, 'Fort Canning': 0, 'Geylang Bahru': 0, 'Gul Circle': 0, 'HarbourFront': 0, 'Haw Par Villa': 2, 'Hillview': 1, 'Holland Village': 3, 'Hougang': 18, 'Jalan Besar': 6, 'Joo Koon': 4, 'Jurong East': 9, 'Kaki Bukit': 7, 'Kallang': 7, 'Kembangan': 0, 'Kent Ridge': 0, 'Khatib': 0, 'King Albert Park': 2, 'Kovan': 6, 'Kranji': 7, 'Labrador Park': 1, 'Lakeside': 0, 'Lavender': 3, 'Little India': 26, 'Lorong Chuan': 0, 'MacPherson': 5, 'Marina Bay': 15, 'Marina South Pier': 0, 'Marsiling': 9, 'Marymount': 2, 'Mattar': 0, 'Mountbatten': 3, 'Newton': 1, 'Nicoll Highway': 0, 'Novena': 0, 'one-north': 1, 'Orchard': 45, 'Outram Park': 0, 'Pasir Panjang': 1, 'Pasir Ris': 16, 'Paya Lebar': 7, 'Pioneer': 3, 'Potong Pasir': 0, 'Promenade': 0, 'Punggol': 18, 'Queenstown': 1, 'Raffles Place': 1, 'Redhill': 1, 'Rochor': 5, 'Sembawang': 12, 'Sengkang': 21, 'Serangoon': 23, 'Simei': 8, 'Sixth Avenue': 0, 'Somerset': 0, 'Stadium': 1, 'Stevens': 0, 'Tai Seng': 1, 'Tampines': 16, 'Tan Kah Kee': 0, 'Tanah Merah': 4, 'Tanjong Pagar': 9, 'Telok Ayer': 0, 'Telok Blangah': 1, 'Tiong Bahru': 2, 'Toa Payoh': 24, 'Tuas Crescent': 0, 'Ubi': 3, 'Upper Changi': 13, 'Woodlands': 72, 'Woodleigh': 0, 'Yew Tee': 2, 'Yio Chu Kang': 2, 'Yishun': 44}")
 
-
-# In[17]:
-
-
 crimeRates = {k.upper(): v for k,v in crimeRates.items()}
 
-
-# In[19]:
-
-
 s['crimeRate'] = 0
-
-
-# In[20]:
-
 
 for index, row in s.iterrows():
     s.at[index, 'crimeRate'] = crimeRates.get(row['station-names'])
     
+# In[22]:
+
+fig, ax = plt.subplots(figsize=(15,15))
+map_df.plot(ax=ax)
+s.plot(column = 'crimeRate',
+       cmap='coolwarm', 
+       ax=ax, 
+       legend=True,
+      vmin = s['crimeRate'].min(),
+      vmax = s['crimeRate'].max())
 
 
-# In[21]:
+# In[23]: Marker Size
 
 
-print(s)
+fig, ax = plt.subplots(figsize=(15,15))
+map_df.plot(ax=ax, color = 'grey')
+s.plot(column = 'crimeRate',
+       cmap='coolwarm', 
+       markersize=3*s['crimeRate'],
+       ax=ax, 
+       legend=True,
+      vmin = s['crimeRate'].min(),
+      vmax = s['crimeRate'].max())
+
+ax.set_title("Crime Rate by MRT locations", fontsize = 25)
+
+# In[25]: Better alignment of legend
 
 
+fig, ax = plt.subplots(figsize=(25,15))
+map_df.plot(ax=ax, color = 'grey')
+s.plot(column = 'crimeRate',
+       cmap='coolwarm', 
+       markersize=5*s['crimeRate'],
+       ax=ax, 
+       legend=True,
+       legend_kwds={'label': "Population by Country", 'orientation': "horizontal"},
+      vmin = s['crimeRate'].min(),
+      vmax = s['crimeRate'].max())
+
+ax.set_title("Crime Rate by MRT locations", fontsize = 25)
