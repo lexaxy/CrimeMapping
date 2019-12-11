@@ -1,10 +1,13 @@
+## Step 1: Extract all the links to crime articles from straitstimes.com/singapore/courts-crime link pages
+## Set maxPages variable which determines how far back to scrape (max is usually ~117)
+
 import bs4 as bs
 import urllib.request
 import time
 import pandas as pd
 
-## global variables
-maxPages = 1
+#### user-defined variables
+maxPages = 12
 
 ## function definitions
 
@@ -39,6 +42,19 @@ def readContentsPages(maxpages):
 
     return df
 
+
+## main body
+
+print("pages to run through: " + str(maxPages))
+df = readContentsPages(maxPages)
+print("completed reading all contents pages")
+
+
+## Step 2: Using links that were extracted, visit each page and extract the full text incl. headline
+## If webpage is in non-standard format, it is flagged out for manual inspection
+ 
+from datetime import date
+
 def extractFullTextwithTitles(dataframe):
     # this function takes as input the data frame generated from readContentsPages, and visits the article URL
     # and adds another column with the full text of the article to the data frame
@@ -59,7 +75,7 @@ def extractFullTextwithTitles(dataframe):
             fullTextList.append(textWOTags)
             time.sleep(0.2)
         except:
-            print(url)
+            print("non-standard webpage found: " + url)
             fullTextList.append(None)
             pass
         counter += 1
@@ -72,8 +88,5 @@ def extractFullTextwithTitles(dataframe):
 
 ## main body
 
-print("pages to run through: " + str(maxPages))
-df = readContentsPages(maxPages)
-print("completed reading all contents pages")
 df = extractFullTextwithTitles(df)
-df.to_csv("STscraper_full.csv")
+df.to_csv("STscraper_full_" + today.strftime("%d%b") + ".csv")
